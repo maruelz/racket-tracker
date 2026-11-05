@@ -15,3 +15,5 @@ entry.body (optional, additive, no schema bump): body check-in, used with about=
 Updates (additive, no schema bump): racket.sport = 'tennis' (default if missing) | 'padel' (no strings/overgrip jobs). Session entries may carry reps (approx serves for tennis, smashes/overheads for padel; same value on every racket part of a session, count once per sessionId). Body check-ins supersede the earlier 0-3 form: one entry per credited racket, sharing checkId, shared=true if >1 racket, about='body', body={elbow,shoulderL,shoulderR (0-10), when: during|after|next}, hours=null. Flare = any joint >= 4 (FLARE constant).
 
 Updates (additive): racket.acquired (optional date; card age uses acquired, else earliest entry date, else createdAt). entry.photoIds (array of photo ids, notes can have several); entry.photoId stays = first one for compatibility.
+
+Updates (additive): entry.intensity on session entries (0 not set | 1 low | 2 normal | 3 high; same value on all racket parts of a session). entry.body.load (0 none | 1 some | 2 lots | 3 heavy) = overhead load (serves/smashes) of the play being rated. entry.reps is no longer written or shown (old values are kept).
