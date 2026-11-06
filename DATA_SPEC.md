@@ -17,3 +17,7 @@ Updates (additive, no schema bump): racket.sport = 'tennis' (default if missing)
 Updates (additive): racket.acquired (optional date; card age uses acquired, else earliest entry date, else createdAt). entry.photoIds (array of photo ids, notes can have several); entry.photoId stays = first one for compatibility.
 
 Updates (additive): entry.intensity on session entries (0 not set | 1 low | 2 normal | 3 high; same value on all racket parts of a session). entry.body.load (0 none | 1 some | 2 lots | 3 heavy) = overhead load (serves/smashes) of the play being rated. entry.reps is no longer written or shown (old values are kept).
+
+Updates (additive): entry.feel = {power,spin,control,slice,feel} each 1-5 (missing = not rated), on session entries or notes (belongs to the racket at that time). entry.photoIds on sessions = string-bed photos; a session entry (sessionId set) with photos is still a session. entry.sessionRef on body entries = sessionId of the session form that created them (body entries are shown only in the Body view, never in a racket's Log).
+
+Updates (additive): feel now has 4 dimensions {power,spin,control,slice} (old 'feel' key ignored). One entry form: an entry with hours is a session, without hours a note/event; about is no longer set by the form (old values still display). Body-only logs create only body entries (about='body', sessionRef optional).
