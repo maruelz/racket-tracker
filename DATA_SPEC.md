@@ -26,12 +26,12 @@ Root backup object: `{ schemaVersion, app: "racket-tracker", rackets[], stringJo
 
 ## Sessions and notes
 
-`entry.sessionId` is optional. Entries sharing a `sessionId` are the per-racket parts of one logged session (same date and note; `hours` is each racket's share). A session has `hours != null`; a note/event has `hours == null`. Existing entries without `sessionId` remain valid.
+`entry.sessionId` is optional. Entries sharing a `sessionId` are the per-racket parts of one logged session (same date and shared note; `hours` is each racket's share when time is recorded). A session entry may have `hours == null` when play time was not recorded; its `sessionId` still ties its Play, Feel, and Look data to that session. Entries without `sessionId` may be standalone notes or events. Existing entries without `sessionId` remain valid.
 
 - `intensity`: tennis-session intensity `0` not set, `1` low, `2` normal, `3` high. The value is repeated on each racket part of a multi-racket session. New padel sessions record play time only.
 - `feel`: legacy ratings `{ power, spin, control, slice }`. They are preserved but are no longer read, displayed, or written by the current rubric.
-- `fit`: optional descriptive ratings `{ power, spin, launch, firmness, forgiveness, precision }`, each 1–5. Missing/null values mean not rated; 0 is never a score.
-- `lk`: optional per-characteristic liking `{ power, spin, launch, firmness, forgiveness, precision }`, each `'like' | 'dislike' | null`. Missing/null means not rated.
+- `fit`: optional descriptive ratings `{ power, spin, launch, firmness, precision, forgiveness }`, each 1–5. Missing/null values mean not rated; 0 is never a score.
+- `lk`: optional per-characteristic liking `{ power, spin, launch, firmness, precision, forgiveness }`, each `'like' | 'dislike' | null`. Missing/null means not rated.
 - `verdict`: optional overall liking, `1` hated, `2` disliked, `3` mixed, `4` liked, `5` loved. Missing/null means not rated.
 - `feelNote`: optional free-text note for this racket's feel, separate from the shared session `note`.
 - `lookNote`: optional tennis string-bed / wear note associated with that racket at that time. Padel does not collect Look notes or photos.

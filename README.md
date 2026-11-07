@@ -6,6 +6,7 @@ A personal, installable web app for tracking tennis and padel racket use, setups
 
 - Track rackets, string jobs, overgrip jobs, play time, and photos.
 - Log a session across one or more rackets, with optional shared session notes and intensity.
+- Keep Play, Feel, and Look in collapsible sections of the same session form. Multi-racket time starts split equally; editing one share keeps it fixed while the remaining shares rebalance.
 - For tennis, record six descriptive Feel ratings, like/dislike per characteristic, an overall verdict, and a per-racket Feel note. Look notes and photos are per racket.
 - Padel sessions record play time only; tennis-only Feel and Look fields are not shown.
 - Keep arm/body check-ins separate from sessions, with optional play-session and racket attribution.
