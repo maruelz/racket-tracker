@@ -1,6 +1,6 @@
 const CACHE_PREFIX = 'racket-tracker-shell-';
-const CACHE_NAME = CACHE_PREFIX + 'v1';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
+const CACHE_NAME = CACHE_PREFIX + 'v3';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-1024.png', './icon-maskable-512.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
