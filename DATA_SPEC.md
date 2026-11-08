@@ -10,6 +10,7 @@ Root backup object: `{ schemaVersion, app: "racket-tracker", rackets[], stringJo
 - Object stores: `kv` (the `data` record) and `ph` (photo data keyed by photo ID)
 - Backup export with photos includes `photos: { [photoId]: dataURL }`.
 - Totals are derived from entries; do not store aggregate totals.
+- UI preference (not part of the backup): `localStorage` key `rt_tab` remembers the home tab (`T` tennis, `P` padel, `B` body).
 
 ## Records
 
@@ -28,7 +29,7 @@ Root backup object: `{ schemaVersion, app: "racket-tracker", rackets[], stringJo
 
 `entry.sessionId` is optional. Entries sharing a `sessionId` are the per-racket parts of one logged session (same date and shared note; `hours` is each racket's share when time is recorded). A session entry may have `hours == null` when play time was not recorded; its `sessionId` still ties its Play, Feel, and Look data to that session. Entries without `sessionId` may be standalone notes or events. Existing entries without `sessionId` remain valid.
 
-- `intensity`: tennis-session intensity `0` not set, `1` low, `2` normal, `3` high. The value is repeated on each racket part of a multi-racket session. New padel sessions record play time only.
+- `intensity`: tennis-session intensity `0` not set, `1` low, `2` normal, `3` high. The value is repeated on each racket part of a multi-racket session. Padel sessions may also set it (optional, same scale); it feeds the weekly high-intensity hours.
 - `feel`: legacy ratings `{ power, spin, control, slice }`. They are preserved but are no longer read, displayed, or written by the current rubric.
 - `fit`: optional descriptive ratings `{ power, spin, launch, firmness, precision, forgiveness }`, each 1–5. Missing/null values mean not rated; 0 is never a score.
 - `lk`: optional per-characteristic liking `{ power, spin, launch, firmness, precision, forgiveness }`, each `'like' | 'dislike' | null`. Missing/null means not rated.
