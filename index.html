@@ -24,7 +24,7 @@ input[type=range]{padding:0;border:0;height:34px;accent-color:var(--a)}
 <header><h1>Racket Tracker</h1><button class=p aria-label="Log session" onclick="sessF()">+ 🎾</button><button aria-label="Log activity" onclick="activityF()">+ 💪</button><button onclick=settings()>⚙</button></header><main id=m></main><div id=sh hidden></div><div id=zm hidden></div>
 <script>
 const CUR=1,MIG={};
-const $=s=>document.querySelector(s),uid=()=>Math.random().toString(36).slice(2,10),today=()=>new Date().toISOString().slice(0,10),now=()=>new Date().toISOString();
+const $=s=>document.querySelector(s),uid=()=>Math.random().toString(36).slice(2,10),today=()=>new Date().toISOString().slice(0,10),dateOffset=n=>{const d=new Date(today()+'T00:00:00Z');d.setUTCDate(d.getUTCDate()-n);return d.toISOString().slice(0,10)},now=()=>new Date().toISOString();
 const fd=d=>d?d.split('-').reverse().join('-'):'';
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let db,view=null,tab='O',bt='P',sl=50,lf={p:1,n:1},ht=null,uw=14,chartPrefs=(()=>{try{return JSON.parse(localStorage.getItem('rt_chart_prefs')||'{}')}catch{return{}}})(),lc='power',cmA=null,cmB=null,swipeX=null,suppressTapTarget=null,suppressTapAt=0;
