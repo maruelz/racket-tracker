@@ -4,7 +4,7 @@
 
 ## Root and storage
 
-Root backup object: `{ schemaVersion, app: "racket-tracker", rackets[], stringJobs[], overgripJobs[], entries[], settings: { lastBackupAt }, photos? }`.
+Root backup object: `{ schemaVersion, app: "racket-tracker", rackets[], stringJobs[], overgripJobs[], entries[], workouts[], sessionMetrics[], settings: { lastBackupAt }, photos? }`.
 
 - IndexedDB database: `rt`
 - Object stores: `kv` (the `data` record) and `ph` (photo data keyed by photo ID)
@@ -17,9 +17,11 @@ Root backup object: `{ schemaVersion, app: "racket-tracker", rackets[], stringJo
 - `racket`: `{ id, name, model, notes?, photoId?, createdAt, archivedAt?, sport?, acquired? }`
   - `sport`: `tennis` (default when absent) or `padel`.
   - `acquired`: optional date used for racket age; otherwise the app uses the earliest entry date, then `createdAt`.
-- `stringJob`: `{ id, racketId, mains: { model, tensionKg }, crosses: { model, tensionKg }, knots: 2|4, startDate, endDate|null, photoId?, notes?, name? }`
+- `stringJob`: `{ id, racketId, mains: { model, tensionKg }, crosses: { model, tensionKg }, knots: 2|4, startDate, endDate|null, photoId?, notes?, name?, targetHours? }`
+  - `targetHours` is the player-set expected lifetime target for that individual restring. Older jobs without it use a 10-hour UI default; actual logged hours remain unchanged.
   - `name` is optional and unique case-insensitively across string jobs. When present it is shown instead of the full string setup.
-- `overgripJob`: `{ id, racketId, model, startDate, endDate|null, photoId?, notes? }`.
+- `overgripJob`: `{ id, racketId, model, startDate, endDate|null, photoId?, notes?, targetHours? }`.
+  - `targetHours` is the expected lifetime target stored per overgrip job. New jobs suggest the median of completed prior overgrip lifetimes for that racket, or 10 hours before history exists; the player can edit it.
 - `entry`: `{ id, racketId|null, date, hours|null, note|null, photoId|null, photoIds?, about?, stringJobId|null, overgripJobId|null, createdAt, updatedAt, sessionId?, sessionRef?, checkId?, shared?, body?, intensity?, feel?, fit?, lk?, verdict?, feelNote?, lookNote? }`.
   - `racketId` is normally a racket ID. It may be `null` for a body check-in intentionally saved without racket attribution.
   - `photoIds` is an optional array of photo IDs. `photoId` remains the first photo ID for compatibility with older data.
@@ -40,6 +42,16 @@ Root backup object: `{ schemaVersion, app: "racket-tracker", rackets[], stringJo
 - New notes do not write note-category values such as `general`, `strings`, `overgrip`, or `frame`; historical values remain unchanged in storage and backups.
 - `entry.reps` from older data is retained if present but is no longer written or displayed.
 
+## Standalone workouts and session observations
+
+- `workouts[]` records activity that is not tied to a racket or tennis/padel session: `{ id, date, type, durationMinutes, intensity, pain?, note?, createdAt, updatedAt }`.
+- Initial activity types: Pilates, Gym / strength, Running, Cycling, Mobility, Other. Custom types are not part of this version.
+- `intensity` uses the existing 0–3 scale: 0 not set, 1 low, 2 normal, 3 high. Relative training load is `durationMinutes × intensity`; it is a personal comparison score, not a physiological measurement.
+- `pain` is optional and may contain `elbow`, `shoulderL`, and/or `shoulderR` ratings from 0–10. Missing keys mean not recorded.
+- A day with no session or standalone workout logged is treated as an implicit recovery day in the Body dashboard. Pilates and every other logged workout count as activity days.
+- Activity totals group entries by `sessionId` so a multi-racket session is counted once. The per-racket usage totals continue to use each racket's allocated hours.
+- `sessionMetrics[]` stores optional session-level observations once per session: `{ sessionId, date, brainFog: 0|1|2|3|4|null, onsetMinutes?: number|'none'|null, fuelNote?: string|null }`. It is not duplicated across per-racket entries.
+
 ## Body / arm check-ins
 
 A body check-in uses `about: "body"`, `hours: null`, and `body: { elbow?, shoulderL?, shoulderR?, load?, when }`.
@@ -58,4 +70,4 @@ A body check-in uses `about: "body"`, `hours: null`, and `body: { elbow?, should
 
 ## Compatibility and deployment
 
-All fields above are additive to schema version 1. The old `feel` and historical `about` values are preserved, and backup import/export retains the additive fields. If a future change alters the stored shape incompatibly, increment `CUR`, add a migration function in `MIG` in `index.html`, and increment the shell cache name in `sw.js`.
+All fields above are additive to schema version 1. Older backups without `workouts`, `sessionMetrics`, or per-job `targetHours` are normalized on load/import; no schema-version bump is required. The old `feel` and historical `about` values are preserved, and backup import/export retains the additive fields. If a future change alters the stored shape incompatibly, increment `CUR`, add a migration function in `MIG` in `index.html`, and increment the shell cache name in `sw.js`.
