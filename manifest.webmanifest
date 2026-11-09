@@ -1,7 +1,9 @@
 {
   "name": "Racket Tracker",
   "short_name": "Rackets",
+  "id": "./index.html",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#fffaf6",
   "theme_color": "#FF6A13",
