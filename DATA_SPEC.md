@@ -16,3 +16,17 @@ Racket Overview overlays string setups as coloured lines (hours played shown) wi
 
 ## Safety
 Import keeps the previous data under `kv` key `prev`. Storage write failures now alert instead of hanging. Racket removal requires typing HIDE or DELETE.
+
+## v14 additions
+**Body check-ins** are point-in-time records (`date`, optional `time`, optional pain 0–10 per joint, optional overhead `load`, `note`). They are no longer linked to a racket or session. Existing check-ins that were saved once per racket (shared `checkId`) are merged into one record; the old racket ids, session reference and timing are kept under `legacy` so a retrospective analysis stays possible. Racket-level pain comparison was removed.
+**Fatigue** is a separate list `db.fatigue`: `{id,date,time?,level 1|2|3,note?,tipDate?,tipTime?}` (1 Fine, 2 Close to the limit, 3 Broke down; no entry = not recorded). `tipDate/tipTime` is the retroactive tipping point, editable any time from the fatigue log.
+Derived series (never stored): known days use the day's highest level. A gap of up to 7 days between two known days is assumed `2` when both ends are 2+, otherwise assumed recovering (`1`); longer gaps and the days after the last entry are unknown. Strain = 0.7 × yesterday + (level 3: 3; level 2: 1 + 0.5 × (consecutive days at 2+ − 1)); gap days never add strain beyond the assumed-2 rule, and unknown days only decay. "Limited" = an active day while fatigue was 2+ (or the day after a 2+ with no 1 logged). Episodes start when level reaches 2+ and end at the first day at 1; load and active-day run are measured up to the tipping point when one is set. The red line needs 3 episodes. Time within a day is not used for fatigue ordering.
+**Body tabs:** Pain · Workload (load, duration, mix, recent workouts) · Recovery (now, recovery strip, fatigue level, strain, episodes, log) · Analytics (rolling load with fatigue dots and red line, load by intensity vs fatigue, recovery time, pain alongside workload, brain fog).
+**Forms:** values are sliders (with a "Not recorded" chip; untouched = null) or chips; times are optional.
+
+## v15 additions
+**Input rules:** named levels (intensity, brain fog, overhead load, fatigue, 1–5 ratings) are chips; tapping the selected chip clears it (stored as not recorded). Numeric ranges (pain 0–10, brain-fog onset) are sliders whose leftmost stop is "unset". Intensity defaults to Normal on a new session; an unset intensity counts as zero load.
+**Brain-fog onset:** the UI offers 30–150 min in 5-min steps; storage is still any non-negative integer, and an existing value outside the range is preserved (the slider widens for that entry).
+**Fatigue labels:** Ok (1) · Borderline (2) · Broke down (3); numbers are stored, not shown.
+**Equipment change on the same day:** decided by the optional times on the session and on the change; if either is missing the session counts toward the new setup. Older `jobPin: "before"` values are still honoured, but there is no longer a form field for it.
+**Navigation:** on the Body tab a horizontal swipe (or swiping the tab row) steps Pain → Workload → Recovery → Analytics; at the first tab a right swipe moves to the previous home tab. Touches that start on a chart still scroll the chart.
