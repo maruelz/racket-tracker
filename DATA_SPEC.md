@@ -30,3 +30,19 @@ Derived series (never stored): known days use the day's highest level. A gap of 
 **Fatigue labels:** Ok (1) · Borderline (2) · Broke down (3); numbers are stored, not shown.
 **Equipment change on the same day:** decided by the optional times on the session and on the change; if either is missing the session counts toward the new setup. Older `jobPin: "before"` values are still honoured, but there is no longer a form field for it.
 **Navigation:** on the Body tab a horizontal swipe (or swiping the tab row) steps Pain → Workload → Recovery → Analytics; at the first tab a right swipe moves to the previous home tab. Touches that start on a chart still scroll the chart.
+
+## v16 additions
+**Load units:** hours x intensity factor (Low 0.5, Normal 1, High 1.5; unset = Normal), so 1 unit = one normal hour.
+**Fatigue:** levels 1 Fresh, 2 Tired, 3 Exhausted, plus optional `stopped`. `db.fatV=2` marks the one-time migration (old 2 -> 3; old 3 -> 3 + stopped). Episodes start at Exhausted and end at the first Fresh/Tired day; Tired only shades charts. A session's "Body at start" chip writes a fatigue entry with `sessionId`; editing or deleting the session updates it.
+**Feel items** (optional 1-5 chips in `fit`): amounts `spin, launch, plow, pop, pocket`; position `firm` (Boardy..Mushy); qualities `comfort, precision, connect, ease` (Problem..Standout; Fine = not its strength, not bad). Old keys `power, firmness, forgiveness` and `lk` likes stay readable in the log but are no longer editable.
+**Tennis usage card:** range chips 7d/14d/4w/All; rackets follow card order.
+
+## v17 additions
+**Body tabs are now Pain · Load** (swipe order Pain, Load). Workload, Recovery and Analytics were merged; the activity-duration, activity-mix, intensity, strain, recovery-strip and pain-load charts were removed.
+**Run load** (derived, never stored): activity load added up day by day since the last full rest day (a day with no logged activity); a rest day resets it to 0. Zones: amber/red at 3/4 until there are 3 fatigue episodes, then red = median run load before those episodes (at the tipping point when set) and amber = 75% of it. Chart overlays: fatigue shading (Tired amber, Exhausted red), peak-pain dots, dashed lines for `stopped` entries.
+**Session sheet** now also records, in `sessionMetrics`: `pain` (peak 0-10 per joint, feeds the Pain charts), `overheads` (0-3) and `cmp` (per Feel item: the racket id that had more / was better, or `same`; multi-racket sessions only).
+
+## v18 additions
+**Fatigue load** (derived) replaces run load: balance_t = 0.75 x balance_(t-1) + load_t, load in normal hours. A rest day lowers the balance, it never resets it (6 days of 1.25 h: about 4.1, then 3.1 / 2.3 / 1.7 on the next rest days). Fallback zones: amber 2.0, red 2.7 (about four normal days in a row); after 3 episodes red = median balance before them, amber = 75% of it. The Now card shows a model estimate (Fresh/Tired/Exhausted) and asks you to log fatigue to correct it; logged entries always win in the shading and episodes.
+**Feel scales (words, one line):** amounts Min-Max, Firmness Mushy-Steely (stored 1-5, flipped once from the old Boardy-Mushy order, `db.fitV=2`), qualities Problem/Weak/Fine/Good/Standout, verdict Hated/Disliked/Mixed/Liked/Loved. Free power moved to the racket (`racket.plow` 1-5, `racket.handle` note); old per-session `plow` stays readable.
+**Forms:** overheads are recorded only in the session sheet (the check-in form no longer asks; stored `body.load` is preserved). Body tab sub-modes sit in the home row as `Tennis Padel Body · Pain Load`; the session Body section is grouped (Body at start, Brain fog with onset shown only when fog is Some/Significant, Peak pain, Overheads).
