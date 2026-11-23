@@ -5,9 +5,11 @@ A personal, installable web app for tracking tennis and padel racket use, setups
 ## Features
 
 - Track rackets, string jobs, overgrip jobs, play time, and photos.
-- Log a session across one or more rackets, with optional shared session notes and intensity.
-- Keep Play, Feel, and Look in collapsible sections of the same session form. Multi-racket time starts split equally; editing one share keeps it fixed while the remaining shares rebalance.
-- For tennis, record six descriptive Feel ratings, like/dislike per characteristic, an overall verdict, and a per-racket Feel note. Look notes and photos are per racket.
+- Log a session across one or more rackets, including an optional ordered racket rotation with a duration for each block.
+- Keep Play, Feel, and Look in collapsible sections of the same session form. Multi-racket time is recorded as ordered blocks, with repeated racket use supported.
+- Record session kinds, optional opponent levels, and physical intensity separately.
+- For tennis, record optional descriptive Feel ratings, per-aspect racket preferences, a match-choice verdict, and a per-racket Feel note. Look condition chips, notes, and photos are per racket.
+- Track expected played hours and calendar age for current string jobs with separate progress bars.
 - Padel sessions record play time only; tennis-only Feel and Look fields are not shown.
 - Keep arm/body check-ins separate from sessions, with optional play-session and racket attribution.
 - Review racket and setup history, Feel summaries, and free-power/firmness trends.
@@ -44,5 +46,6 @@ When changing the app shell or its assets, increment `CACHE_NAME` in `sw.js` so 
 - `icon-1024.jpg` — modern source image; PNG app-icon sizes and a maskable variant are generated from it
 - `DATA_SPEC.md` — current IndexedDB and backup data contract
 - `Racket Tracker Design Document.md` — as-built behavior and design notes
+- `tests.js` — pure-logic and stubbed-DOM smoke test (not a browser test)
 
-The database schema is currently version 1. See `DATA_SPEC.md` before changing stored records or backup behavior. There is no automated test suite or build pipeline configured.
+The database schema is currently version 1. See `DATA_SPEC.md` before changing stored records or backup behavior. Run `node tests.js` to run the existing smoke test; there is no build pipeline.

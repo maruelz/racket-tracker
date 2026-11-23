@@ -36,7 +36,8 @@ Rackets can be tennis or padel. Tennis rackets may have string and overgrip jobs
 
 The storage rules that matter to the UI are:
 
-- Tennis Feel data is additive: `fit` holds optional 1–5 descriptive ratings, `lk` holds optional like/dislike choices, `verdict` is 1–5, and `feelNote` is a free-text note per racket.
+- Tennis Feel data is additive: `fit` holds optional 1–5 descriptive ratings, `lk` holds optional like/dislike choices, and `feelNote` is a free-text note per racket. New overall verdicts use versioned match-choice labels; older Hated–Loved verdicts remain identifiable in history.
+- Shared session metrics may include ordered racket-use blocks, session-kind tags, an optional overall opponent-level estimate, and per-aspect racket preferences. Existing `entry.intensity` remains physical effort and continues to drive load calculations.
 - The Feel characteristics are free power, free spin, launch, firmness, precision, and forgiveness. No combined score is calculated.
 - `feel` is a legacy field. The current rubric does not read or write it, and editing a record preserves any legacy value still on that record.
 - `about` remains for body check-ins and historical compatibility. New notes do not ask for a category; historical note categories remain in stored data and backups.
@@ -57,9 +58,9 @@ Tapping a racket opens its detail view. The detail view has a Log tab and, for t
 
 A session can include one or more rackets and has a date, optional play time, shared session note, and tennis intensity. Play, Feel, and Look are collapsible sections in the same form—not separate logging modes. Feel and Look are stored with that session's ID and date; play time can remain blank.
 
-- **Play:** hours, the shared session note, and tennis intensity
-- **Feel (tennis only):** optional 1–5 chips for each characteristic, optional like/dislike per characteristic, an optional overall verdict, and a per-racket Feel note
-- **Look (tennis only):** a per-racket string-bed/wear note and photos
+- **Play:** total session time, racket selection and ordered time blocks, shared session kinds and note, opponent level(s), and physical intensity
+- **Feel (tennis only):** optional 1–5 chips for each characteristic, an optional preferred racket per characteristic in multi-racket sessions, a match-choice verdict, and a per-racket Feel note
+- **Look (tennis only):** per-racket string-bed condition chips, wear note, and photos
 
 Feel scores use 1–5, with the characteristic label opening a compact guide containing the italic prompt and one-line low/high anchors. Each characteristic has its five score chips and icon-only like/dislike buttons in one row, separated by a dot. Tapping a selected score or like/dislike again clears that value. Feel summaries show descriptive medians, sample counts, likes/dislikes, and verdict counts; they do not rank rackets or combine characteristics into a grade.
 
@@ -67,7 +68,7 @@ The Setups view can show a descriptive trend of free power and firmness against 
 
 Collapsing a section only hides its contents; it does not disable or delete its data. Clear the fields or selections explicitly when the intention is to remove values.
 
-For multi-racket sessions, total time is initially distributed equally. Editing a racket's time locks that share while unedited shares update to use the remaining time. Editing the total updates all unedited shares. Existing shares stay unchanged until the total, a share, or the racket selection is changed.
+Session time is optional and selected in five-minute increments, up to three hours. When multiple rackets are selected, the form offers ordered blocks with repeated rackets allowed; block durations are five-minute increments bounded by the total session time, and their sum must match it when recorded. Each racket's existing session-hour entry remains the sum of its blocks. Session kinds and opponent levels are multi-select; opponent level is an overall estimate for the session, while physical intensity remains a separate effort rating.
 
 Padel sessions are Play-only: they record play time without tennis-specific intensity, Feel, Look, notes, or photos.
 
