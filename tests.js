@@ -6,8 +6,28 @@ js=js.replace(/\(async\(\)=>\{db=migrate[\s\S]*\}\)\(\);\s*$/,''); // drop boot 
 const stub=new Proxy(function(){},{get:(t,k)=>k===Symbol.toPrimitive?()=>'':k==='length'?0:k==='then'?undefined:stub,set:()=>true,apply:()=>stub});
 const els=[];const doc={querySelector:()=>stub,querySelectorAll:q=>q==='[data-chart]'?els:[],addEventListener(){},createElement:()=>stub};
 const ctx={document:doc,indexedDB:{open:()=>stub},localStorage:{getItem:()=>null,setItem(){}},history:stub,addEventListener(){},navigator:{},console,setTimeout,clearTimeout,Date,Math,alert(){},confirm:()=>true};
-ctx.window=ctx;vm.createContext(ctx);vm.runInContext(js+';this.api={slideH,chipsH,sessF,jobF,sTxt,fatSeries,episodes,loadView,bodyF,fatF,workoutF,pick,norm,upgradeFatigueScale,fatigueEstimate,FN,buildIx,render,mainList,detail,bodyView,fitDisplay,fitProfile,cmpTxt,blockHours,stoppedDates,strAgeMeter,strTarget,rangeControls,timeLabel,wkBlock,racketOverview,FIT,LOOK_FLAGS,VERDICTS,LEGACY_VERDICTS,today,get db(){return db},set db(v){db=v},set bt(v){bt=v},set tab(v){tab=v},CS,bindChartScrolls,today}',ctx);
+ctx.window=ctx;vm.createContext(ctx);vm.runInContext(js+';this.api={slideH,chipsH,sessF,jobF,sTxt,fatSeries,episodes,loadView,bodyF,fatF,workoutF,pick,norm,upgradeFatigueScale,fatigueEstimate,FN,buildIx,render,mainList,detail,bodyView,fitDisplay,fitProfile,cmpTxt,blockHours,stoppedDates,strAgeMeter,strTarget,rangeControls,timeLabel,wkBlock,racketOverview,thoughtView,thoughtItems,thoughtLinkLabel,thoughtLinksHtml,FIT,LOOK_FLAGS,VERDICTS,LEGACY_VERDICTS,today,get db(){return db},set db(v){db=v},set bt(v){bt=v},set tab(v){tab=v},CS,bindChartScrolls,today}',ctx);
 const A=ctx.api;
+{
+ A.db={rackets:[{id:'r',name:'Pure',sport:'tennis'},{id:'r2',name:'Aero',sport:'tennis'}],
+  stringJobs:[{id:'sj',racketId:'r',startDate:'2026-11-01',name:'Thicker gauge'}],overgripJobs:[{id:'og',racketId:'r2',startDate:'2026-11-02',model:'Tacky'}],
+  entries:[{id:'e1',sessionId:'S1',racketId:'r',date:'2026-11-03',time:'10:00',hours:1},{id:'e2',sessionId:'S1',racketId:'r2',date:'2026-11-03',time:'10:00',hours:1}],
+  workouts:[],sessionMetrics:[],thoughts:[{id:'t1',date:'2026-11-04',time:'11:30',text:'Try the thicker gauge next time.',createdAt:'2026-11-04T10:30:00Z',links:[{type:'session',id:'S1'},{type:'racket',id:'r'},{type:'stringJob',id:'sj'},{type:'overgripJob',id:'og'}]}],settings:{}};
+ A.norm();
+ assert.strictEqual(A.thoughtItems('session').length,1,'multi-racket session appears as one link target');
+ assert(A.thoughtItems('session')[0].label.includes('Pure, Aero'),'session target names every racket');
+ assert.strictEqual(A.thoughtItems('racket').length,2);
+ assert(A.thoughtLinkLabel({type:'stringJob',id:'sj'}).includes('Thicker gauge'));
+ assert(A.thoughtLinkLabel({type:'overgripJob',id:'og'}).includes('Tacky'));
+ const thoughts=A.thoughtView();
+ assert(thoughts.includes('Try the thicker gauge next time.')&&thoughts.includes('Pure · Tennis'),'thought text and linked context are shown');
+ assert.strictEqual((thoughts.match(/data-thought-edit/g)||[]).length,1);
+ assert.strictEqual((A.thoughtLinksHtml(A.db.thoughts[0].links).match(/class="chip"/g)||[]).length,4,'a thought can display multiple links of different types');
+ A.db={rackets:[],stringJobs:[],overgripJobs:[],entries:[],workouts:[],sessionMetrics:[],settings:{}};
+ A.norm();
+ assert.deepStrictEqual(Array.from(A.db.thoughts),[],'older backups load with an empty thoughts collection');
+ assert(A.mainList().includes('Thoughts'),'the global journal remains reachable without a racket');
+}
 {
  const realForm=ctx.form;
  let fields,save;

@@ -5,6 +5,7 @@ A personal, installable web app for tracking tennis and padel racket use, setups
 ## Features
 
 - Track rackets, string jobs, overgrip jobs, play time, and photos.
+- Keep floating, timestamped thoughts in a global journal, optionally linked to any number of sessions, rackets, or setups.
 - Log a session across one or more rackets, including an optional ordered racket rotation with a duration for each block.
 - Keep Play, Feel, and Look in collapsible sections of the same session form. Multi-racket time is recorded as ordered blocks, with repeated racket use supported.
 - Record session kinds, optional opponent levels, and physical intensity separately.
@@ -36,6 +37,7 @@ When changing the app shell or its assets, increment `CACHE_NAME` in `sw.js` so 
 - Live data is stored in IndexedDB in the browser, under the app's origin. It is not uploaded or synchronized.
 - Different browsers or site origins have separate data. Moving the app to a different URL does not move existing data.
 - In **Settings**, export a JSON backup with or without photos. Import replaces the current data, so export a backup before importing.
+- Thought entries and their related-record links are included in both backup formats.
 - Do not commit exported backups or personal photos to the repository.
 
 ## Project files

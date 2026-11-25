@@ -34,6 +34,8 @@ The app uses IndexedDB database `rt`, with the `kv` store for the main data obje
 
 Rackets can be tennis or padel. Tennis rackets may have string and overgrip jobs, which have dates, setup details, and optional photos. Entries record play sessions, notes, or body check-ins. One multi-racket session is represented by multiple entries sharing a `sessionId`; each entry carries the share of hours attributed to its racket.
 
+Floating thoughts are stored separately in `thoughts`; they do not replace or alter notes attached to sessions, rackets, workouts, or check-ins. A thought has an event date, optional event time, creation/update timestamps, text, and an optional list of links to sessions, rackets, string jobs, or overgrip jobs. Links are independent references and are not deleted when the related record is removed.
+
 The storage rules that matter to the UI are:
 
 - Tennis Feel data is additive: `fit` holds optional 1–5 descriptive ratings, `lk` holds optional like/dislike choices, and `feelNote` is a free-text note per racket. New overall verdicts use versioned match-choice labels; older Hated–Loved verdicts remain identifiable in history.
@@ -50,7 +52,7 @@ See `DATA_SPEC.md` for the complete record shapes, fields, and compatibility req
 
 ### Home
 
-The home screen shows racket cards with total hours and, for tennis rackets, current string and overgrip summaries. It also shows body/arm status and provides global actions to log a session or create a body check-in. Padel cards omit tennis setup details.
+The home screen shows racket cards with total hours and, for tennis rackets, current string and overgrip summaries. It also shows body/arm status and provides global actions to log a session or create a body check-in. Its global tabs include Thoughts, a standalone chronological journal for floating notes. Thoughts are created and managed there rather than from session, racket, or setup forms. Padel cards omit tennis setup details.
 
 Tapping a racket opens its detail view. The detail view has a Log tab and, for tennis, a Setups tab. The Log view shows the racket's entries and related setup events. Setups shows string and overgrip history, hours per setup, and tennis Feel summaries where data exists.
 
