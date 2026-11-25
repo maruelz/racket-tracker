@@ -6,7 +6,7 @@ js=js.replace(/\(async\(\)=>\{db=migrate[\s\S]*\}\)\(\);\s*$/,''); // drop boot 
 const stub=new Proxy(function(){},{get:(t,k)=>k===Symbol.toPrimitive?()=>'':k==='length'?0:k==='then'?undefined:stub,set:()=>true,apply:()=>stub});
 const els=[];const doc={querySelector:()=>stub,querySelectorAll:q=>q==='[data-chart]'?els:[],addEventListener(){},createElement:()=>stub};
 const ctx={document:doc,indexedDB:{open:()=>stub},localStorage:{getItem:()=>null,setItem(){}},history:stub,addEventListener(){},navigator:{},console,setTimeout,clearTimeout,Date,Math,alert(){},confirm:()=>true};
-ctx.window=ctx;vm.createContext(ctx);vm.runInContext(js+';this.api={slideH,chipsH,sessF,jobF,sTxt,fatSeries,episodes,loadView,bodyF,fatF,workoutF,pick,norm,upgradeFatigueScale,fatigueEstimate,FN,buildIx,render,mainList,detail,bodyView,fitDisplay,fitProfile,cmpTxt,blockHours,stoppedDates,strAgeMeter,strTarget,rangeControls,timeLabel,wkBlock,racketOverview,thoughtView,thoughtItems,thoughtLinkLabel,thoughtLinksHtml,FIT,LOOK_FLAGS,VERDICTS,LEGACY_VERDICTS,today,get db(){return db},set db(v){db=v},set bt(v){bt=v},set tab(v){tab=v},CS,bindChartScrolls,today}',ctx);
+ctx.window=ctx;vm.createContext(ctx);vm.runInContext(js+';this.api={slideH,chipsH,sessF,jobF,sTxt,fatSeries,episodes,loadView,bodyF,fatF,workoutF,pick,norm,upgradeFatigueScale,fatigueEstimate,FN,buildIx,render,mainList,detail,bodyView,fitDisplay,fitProfile,cmpTxt,blockHours,stoppedDates,strAgeMeter,strTarget,rangeControls,timeLabel,wkBlock,racketOverview,thoughtView,thoughtItems,thoughtLinkLabel,thoughtLinksHtml,sessionGroups,sessionHistory,sessionCopyText,FIT,LOOK_FLAGS,VERDICTS,LEGACY_VERDICTS,today,get db(){return db},set db(v){db=v},set bt(v){bt=v},set tab(v){tab=v},CS,bindChartScrolls,today}',ctx);
 const A=ctx.api;
 {
  A.db={rackets:[{id:'r',name:'Pure',sport:'tennis'},{id:'r2',name:'Aero',sport:'tennis'}],
@@ -27,6 +27,24 @@ const A=ctx.api;
  A.norm();
  assert.deepStrictEqual(Array.from(A.db.thoughts),[],'older backups load with an empty thoughts collection');
  assert(A.mainList().includes('Thoughts'),'the global journal remains reachable without a racket');
+}
+{
+ A.db={rackets:[{id:'r',name:'Pure',sport:'tennis'},{id:'r2',name:'Aero',sport:'tennis'},{id:'p',name:'Padel frame',sport:'padel'}],
+  entries:[{id:'t1',sessionId:'T1',racketId:'r',date:'2026-11-20',time:'10:00',hours:1/3,intensity:2,note:'Long rally',fit:{spin:5},feelNote:'Easy spin'},
+   {id:'t2',sessionId:'T1',racketId:'r2',date:'2026-11-20',time:'10:00',hours:.5,lookFlags:['breakage'],lookNote:'Main snapped'},
+   {id:'p1',sessionId:'P1',racketId:'p',date:'2026-11-21',hours:1}],sessionMetrics:[{sessionId:'T1',sessionTypes:['Match'],opponentLevels:['above'],blocks:[{racketId:'r',minutes:20},{racketId:'r2',minutes:30}],brainFog:1,pain:{elbow:3},overheads:2,pref:{spin:'r2'}}],
+  fatigue:[{id:'f1',sessionId:'T1',level:2}],stringJobs:[],overgripJobs:[],workouts:[],settings:{parts:[{key:'elbow',name:'Elbow'}]}};
+ const tennis=A.sessionGroups('tennis'),padel=A.sessionGroups('padel'),html=A.sessionHistory('tennis'),text=A.sessionCopyText('T1');
+ assert.strictEqual(tennis.length,1,'multi-racket tennis session is grouped into one history item');
+ assert.strictEqual(tennis[0].entries.length,2,'group keeps all racket entries');
+ assert.strictEqual(padel.length,1,'padel history excludes tennis entries');
+ assert.strictEqual((html.match(/data-copy-session=/g)||[]).length,1,'one copy button is rendered per session');
+ assert(html.includes('Pure, Aero')&&html.includes('Edit'),'history summary names all rackets and provides session editing');
+ assert(text.includes('Pure, Aero')&&text.includes('Racket rotation: Pure 20 min → Aero 30 min'),'copy includes every racket and the ordered rotation');
+ assert(text.includes('Feel: Free spin Max')&&text.includes('Feel note: Easy spin')&&text.includes('String-bed condition: Breakage'),'copy includes per-racket Feel and Look details');
+ assert(!text.includes('Pop 👎'),'unset racket ratings are not copied as dislikes');
+ assert(text.includes('Session note: Long rally')&&text.includes('Body at start: A bit tired')&&text.includes('Peak pain: Elbow 3/10'),'copy includes shared notes and body metrics');
+ assert(!A.sessionHistory('padel').includes('Long rally'),'padel history does not show tennis content');
 }
 {
  const realForm=ctx.form;

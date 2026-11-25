@@ -54,6 +54,8 @@ See `DATA_SPEC.md` for the complete record shapes, fields, and compatibility req
 
 The home screen shows racket cards with total hours and, for tennis rackets, current string and overgrip summaries. It also shows body/arm status and provides global actions to log a session or create a body check-in. Its global tabs include Thoughts, a standalone chronological journal for floating notes. Thoughts are created and managed there rather than from session, racket, or setup forms. Padel cards omit tennis setup details.
 
+The Tennis and Pádel home tabs each show a collapsed **Sessions history** below their racket cards. It groups multi-racket entries into one chronological session, expands to show the recorded details, and offers one-click copying of the complete session text.
+
 Tapping a racket opens its detail view. The detail view has a Log tab and, for tennis, a Setups tab. The Log view shows the racket's entries and related setup events. Setups shows string and overgrip history, hours per setup, and tennis Feel summaries where data exists.
 
 ### Logging a session
