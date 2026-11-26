@@ -6,7 +6,7 @@ js=js.replace(/\(async\(\)=>\{db=migrate[\s\S]*\}\)\(\);\s*$/,''); // drop boot 
 const stub=new Proxy(function(){},{get:(t,k)=>k===Symbol.toPrimitive?()=>'':k==='length'?0:k==='then'?undefined:stub,set:()=>true,apply:()=>stub});
 const els=[];const doc={querySelector:()=>stub,querySelectorAll:q=>q==='[data-chart]'?els:[],addEventListener(){},createElement:()=>stub};
 const ctx={document:doc,indexedDB:{open:()=>stub},localStorage:{getItem:()=>null,setItem(){}},history:stub,addEventListener(){},navigator:{},console,setTimeout,clearTimeout,Date,Math,alert(){},confirm:()=>true};
-ctx.window=ctx;vm.createContext(ctx);vm.runInContext(js+';this.api={slideH,chipsH,sessF,jobF,sTxt,stringers,fatSeries,episodes,loadView,bodyF,fatF,workoutF,pick,norm,upgradeFatigueScale,fatigueEstimate,FN,buildIx,render,mainList,detail,bodyView,fitDisplay,fitProfile,cmpTxt,blockHours,stoppedDates,strAgeMeter,strTarget,rangeControls,timeLabel,wkBlock,racketOverview,thoughtView,thoughtItems,thoughtLinkLabel,thoughtLinksHtml,sessionGroups,sessionHistory,sessionCopyText,FIT,LOOK_FLAGS,VERDICTS,LEGACY_VERDICTS,today,get db(){return db},set db(v){db=v},set bt(v){bt=v},set tab(v){tab=v},CS,bindChartScrolls,today}',ctx);
+ctx.window=ctx;vm.createContext(ctx);vm.runInContext(js+';this.api={slideH,chipsH,sessF,jobF,sTxt,stringers,fatSeries,episodes,loadView,bodyF,fatF,workoutF,pick,norm,upgradeFatigueScale,fatigueEstimate,FN,buildIx,render,mainList,detail,bodyView,fitDisplay,fitProfile,cmpTxt,blockHours,stoppedDates,strAgeMeter,strTarget,rangeControls,timeLabel,wkBlock,racketOverview,thoughtView,thoughtItems,thoughtLinkLabel,thoughtLinksHtml,sessionGroups,sessionHistory,sessionCopyText,lentUseEntries,lentMinutesFit,deleteRacketData,activityRecords,dailyActivity,equipmentHours:f=>H(f),personalHours:f=>PH(f),FIT,LOOK_FLAGS,VERDICTS,LEGACY_VERDICTS,today,get db(){return db},set db(v){db=v},set bt(v){bt=v},set tab(v){tab=v},CS,bindChartScrolls,today}',ctx);
 const A=ctx.api;
 {
  A.db={rackets:[{id:'r',name:'Pure',sport:'tennis'},{id:'r2',name:'Aero',sport:'tennis'}],
@@ -40,11 +40,48 @@ const A=ctx.api;
  assert.strictEqual(padel.length,1,'padel history excludes tennis entries');
  assert.strictEqual((html.match(/data-copy-session=/g)||[]).length,1,'one copy button is rendered per session');
  assert(html.includes('Pure, Aero')&&html.includes('Edit'),'history summary names all rackets and provides session editing');
+ assert(html.includes('data-edit-session="t1"'),'normal session editing still targets its entry');
  assert(text.includes('Pure, Aero')&&text.includes('Racket rotation: Pure 20 min → Aero 30 min'),'copy includes every racket and the ordered rotation');
  assert(text.includes('Feel: Free spin Max')&&text.includes('Feel note: Easy spin')&&text.includes('String-bed condition: Breakage'),'copy includes per-racket Feel and Look details');
  assert(!text.includes('Pop 👎'),'unset racket ratings are not copied as dislikes');
  assert(text.includes('Session note: Long rally')&&text.includes('Body at start: A bit tired')&&text.includes('Peak pain: Elbow 3/10'),'copy includes shared notes and body metrics');
  assert(!A.sessionHistory('padel').includes('Long rally'),'padel history does not show tennis content');
+}
+{
+ A.db={rackets:[{id:'r',name:'Pure',sport:'tennis'},{id:'r2',name:'Aero',sport:'tennis'},{id:'r3',name:'Blade',sport:'tennis'}],
+  stringJobs:[{id:'old',racketId:'r2',startDate:'2026-11-01',endDate:'2026-11-24',mains:{model:'a',tensionKg:24},crosses:{model:'a',tensionKg:24},knots:2},{id:'new',racketId:'r2',startDate:'2026-11-24',time:'10:00',mains:{model:'b',tensionKg:25},crosses:{model:'b',tensionKg:25},knots:2}],
+  overgripJobs:[],entries:[{id:'e',sessionId:'S',racketId:'r',date:'2026-11-24',time:'09:00',hours:1,intensity:2}],
+  sessionMetrics:[{sessionId:'S',date:'2026-11-24',lentUse:[{racketId:'r2',minutes:30},{racketId:'r3',minutes:15}]}],workouts:[],fatigue:[],settings:{parts:[]}};
+ const lent=A.lentUseEntries()[0];
+ assert.strictEqual(lent.stringJobId,'old','lent use follows the linked session time when attributing setup wear');
+ assert.strictEqual(A.equipmentHours(e=>e.racketId==='r'),1,'equipment hours retain personal play on the played racket');
+ assert.strictEqual(A.equipmentHours(e=>e.racketId==='r2'),.5,'equipment hours include a racket lent but not played by its owner');
+ assert.strictEqual(A.personalHours(e=>e.racketId==='r2'),0,'lent-only racket has no personal hours');
+ assert.strictEqual(A.activityRecords()[0].minutes,60,'lent time does not increase personal activity duration');
+ assert.strictEqual(A.dailyActivity().get('2026-11-24').load,1,'lent time does not increase personal load');
+ const usage=vm.runInContext("racketUseByDay().get('2026-11-24').get('r')",ctx);
+ assert.strictEqual(usage.played,1);const lentUsage=vm.runInContext("racketUseByDay().get('2026-11-24').get('r2')",ctx);assert.strictEqual(lentUsage.played,0);assert.strictEqual(lentUsage.lent,.5,'racket chart data retains lent-only equipment use');
+ assert(A.sessionHistory('tennis').includes('Lent use')&&A.sessionHistory('tennis').includes('Aero 30 min'),'session history shows lent racket and duration');
+ assert(A.sessionCopyText('S').includes('Lent use: Aero 30 min, Blade 15 min'),'copied session includes all lent use without changing the personal total');
+ A.buildIx();A.tab='O';const overview=A.detail('r2');assert(overview.includes('0.5 h</strong>')&&overview.includes('lifetime equipment use'),'lent-only racket overview shows equipment total');assert(overview.includes('0.0 h my play · 0 my-play sessions'),'lent-only racket overview keeps personal session totals explicit');
+ A.tab='S';assert(A.detail('r2').includes('Lent to opponent · 30 min'),'racket history shows lent use as its own event');
+ A.buildIx();A.tab='O';A.detail('r2');assert.strictEqual(A.CS['racket-r2'].segs.find(x=>x.length)[0].o,.45,'lent chart remains a lighter stacked equipment segment');
+ assert.strictEqual(A.lentMinutesFit([{racketId:'r2',minutes:30},{racketId:'r3',minutes:20}],60),true,'lent totals may fill or use part of the linked session');
+ assert.strictEqual(A.lentMinutesFit([{racketId:'r2',minutes:40},{racketId:'r3',minutes:30}],60),false,'lent totals cannot exceed the linked session');
+ assert.strictEqual(A.lentMinutesFit([{racketId:'r2',minutes:180}],0),true,'lent-only records allow up to three hours');
+ assert.strictEqual(A.lentMinutesFit([{racketId:'r2',minutes:185}],0),false,'lent-only records cap aggregate time at three hours');
+ A.deleteRacketData('r2');assert(!A.db.rackets.some(r=>r.id==='r2'),'permanent deletion removes the racket');assert.deepStrictEqual(Array.from(A.db.sessionMetrics[0].lentUse,x=>x.racketId),['r3'],'permanent deletion removes only that racket lending reference');
+ A.db.sessionMetrics[0].lentUse=[{racketId:'r3',minutes:15}];A.deleteRacketData('r3');assert.strictEqual(A.db.sessionMetrics.length,0,'deleting the final lent-only racket removes the now-empty metric');
+}
+{
+ A.db={rackets:[{id:'r',name:'Aero',sport:'tennis'}],stringJobs:[],overgripJobs:[],entries:[],sessionMetrics:[{sessionId:'L',date:'2026-11-24',time:'10:00',lentUse:[{racketId:'r',minutes:45}],createdAt:'2026-11-24T10:00:00Z'}],workouts:[],fatigue:[],settings:{parts:[]}};
+ A.norm();assert.strictEqual(A.db.sessionMetrics.length,1,'lent-only equipment records survive normalization');
+ const groups=A.sessionGroups('tennis');assert.strictEqual(groups.length,1);assert.strictEqual(groups[0].entries.length,0,'lent-only record is not a personal play session');
+ assert(A.sessionHistory('tennis').includes('Lent · Aero · 45 min'),'lent-only record is visible and editable in history');
+ assert(A.sessionHistory('tennis').includes('0 sessions · 1 lent record'),'lent-only history count is not presented as a personal session');
+ assert(A.sessionCopyText('L').includes('Tennis lent equipment use')&&A.sessionCopyText('L').includes('Lent use: Aero 45 min'),'lent-only copy preserves its equipment context');
+ assert.strictEqual(A.activityRecords().length,0,'lent-only record does not appear in personal activity');
+ A.buildIx();A.tab='O';A.detail('r');assert(A.CS['racket-r'].segs.some(x=>x.length),'lent-only use appears in its racket chart');
 }
 {
  const realForm=ctx.form;
@@ -139,6 +176,11 @@ const bodies=A.db.entries.filter(e=>e.body&&e.checkId==='C1');assert.strictEqual
  assert(/min=25 max=150/.test(un)&&/value=""/.test(un)&&!/Not recorded|<b data-sv>:/.test(un),'onset: unset stop below 30, bare label');assert(/min=15/.test(old)&&/value="20"/.test(old),'existing onset 20 preserved, range widened');
  assert(/min=-1 max=10/.test(pn)&&/Elbow<b data-sv>: –/.test(pn),'pain: unset at left');assert(!/Not recorded/.test(ch)&&/chip on" data-v="2"/.test(ch),'chips: no unset chip');
 const sj=vm.runInContext("sessF.toString()",ctx);assert(!/rel/.test(sj.match(/Log session[\s\S]{0,400}/)[0].replace(/relative|rel=/g,'')),'rel field gone');assert(sj.includes("['2','A bit tired']")&&sj.includes("['3','Very tired']")&&sj.includes("['4','Exhausted']"),'session Body at start uses the four fatigue levels');assert(sj.includes('Select multiple for mixed levels')&&sj.includes('Your physical effort; opponent level is separate'),'session guidance is inline with its heading');assert(!sj.includes('data-block-up')&&!sj.includes('data-block-down'),'racket allocation rows no longer include reorder buttons');assert(sj.includes('useBlocks=sel.length>1')&&sj.includes('hidden=sel.length<2||!useBlocks'),'racket allocation activates only with multiple rackets');assert(html.includes('.chip{padding:6px 12px;font-size:12px}')&&!html.includes('compact-choice'),'chips and session context headings use consistent styling');}
+{
+ const sj=ctx.sessF.toString();
+ assert(sj.includes("section('lent'")&&sj.includes('Record each racket’s total time used by someone else'),'session form has a separate Lent accordion');
+ assert(sj.includes('lentSel.map')&&sj.includes('lentUse.length?lentUse:null'),'lent selection and durations persist with session metrics');
+}
 for(const f of[()=>A.sessF('r'),()=>A.sessF('r',A.db.entries.find(e=>e.sessionId)),()=>A.bodyF(),()=>A.fatF(),()=>A.workoutF(),()=>A.bodyF(A.db.entries.find(e=>e.body)),()=>A.fatF(A.db.fatigue[0])])f();
 A.buildIx();out='';A.tab='O';out+=A.mainList()+A.detail('r');for(const k of['P','L'])A.bt=k,out+=A.bodyView();assert(!/NaN|undefined/.test(out),'re-render has NaN/undefined: '+(out.match(/.{40}(NaN|undefined).{40}/)||[''])[0]);const ids=Object.keys(A.CS);assert(ids.length>=9,'charts registered: '+ids.length);
 for(const id of ids){const el={dataset:{chart:id},clientWidth:330,scrollWidth:4000,scrollLeft:0,innerHTML:'',previousElementSibling:{style:{},innerHTML:''},firstChild:{}};els.push(el);}

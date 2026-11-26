@@ -7,6 +7,7 @@ A personal, installable web app for tracking tennis and padel racket use, setups
 - Track rackets, string jobs, overgrip jobs, play time, and photos.
 - Keep floating, timestamped thoughts in a global journal, optionally linked to any number of sessions, rackets, or setups.
 - Log a session across one or more rackets, including an optional ordered racket rotation with a duration for each block.
+- Record optional per-racket lent use with or without your own session; it adds equipment wear without increasing your own play or body/load time.
 - Browse a collapsed, sport-specific session history below the Tennis and Pádel racket cards; expand entries or copy a complete multi-racket session.
 - Keep Play, Feel, and Look in collapsible sections of the same session form. Multi-racket time is recorded as ordered blocks, with repeated racket use supported.
 - Record session kinds, optional opponent levels, and physical intensity separately.

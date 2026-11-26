@@ -52,7 +52,7 @@ See `DATA_SPEC.md` for the complete record shapes, fields, and compatibility req
 
 ### Home
 
-The home screen shows racket cards with total hours and, for tennis rackets, current string and overgrip summaries. It also shows body/arm status and provides global actions to log a session or create a body check-in. Its global tabs include Thoughts, a standalone chronological journal for floating notes. Thoughts are created and managed there rather than from session, racket, or setup forms. Padel cards omit tennis setup details.
+The home screen shows racket cards with equipment-use hours (your play plus lent use) and, for tennis rackets, current string and overgrip summaries. It also shows body/arm status and provides global actions to log a session or create a body check-in. Personal play-session counts remain separate from equipment-use totals. Its global tabs include Thoughts, a standalone chronological journal for floating notes. Thoughts are created and managed there rather than from session, racket, or setup forms. Padel cards omit tennis setup details.
 
 The Tennis and Pádel home tabs each show a collapsed **Sessions history** below their racket cards. It groups multi-racket entries into one chronological session, expands to show the recorded details, and offers one-click copying of the complete session text.
 
@@ -65,6 +65,8 @@ A session can include one or more rackets and has a date, optional play time, sh
 - **Play:** total session time, racket selection and ordered time blocks, shared session kinds and note, opponent level(s), and physical intensity
 - **Feel (tennis only):** optional 1–5 chips for each characteristic, an optional preferred racket per characteristic in multi-racket sessions, a match-choice verdict, and a per-racket Feel note
 - **Look (tennis only):** per-racket string-bed condition chips, wear note, and photos
+- **Lent:** optional, unordered per-racket durations for rackets used by someone else during the session. Lent time counts toward equipment and setup wear, but not the owner's play time or body/load metrics.
+- **Lent-only:** the form can also save Lent without personal Play data. It becomes an equipment-use record, not a personal session, and may contain up to three hours in total.
 
 Feel scores use 1–5, with the characteristic label opening a compact guide containing the italic prompt and one-line low/high anchors. Each characteristic has its five score chips and icon-only like/dislike buttons in one row, separated by a dot. Tapping a selected score or like/dislike again clears that value. Feel summaries show descriptive medians, sample counts, likes/dislikes, and verdict counts; they do not rank rackets or combine characteristics into a grade.
 
@@ -74,7 +76,9 @@ Collapsing a section only hides its contents; it does not disable or delete its 
 
 Session time is optional and selected in five-minute increments, up to three hours. When multiple rackets are selected, the form offers ordered blocks with repeated rackets allowed; block durations are five-minute increments bounded by the total session time, and their sum must match it when recorded. Each racket's existing session-hour entry remains the sum of its blocks. Session kinds and opponent levels are multi-select; opponent level is an overall estimate for the session, while physical intensity remains a separate effort rating.
 
-Padel sessions are Play-only: they record play time without tennis-specific intensity, Feel, Look, notes, or photos.
+When personal session time is entered, the aggregate Lent durations may not exceed it and the Lent section shows the remaining relationship live. Equality is not required. Racket selections may overlap between Play and Lent. If no personal fields are recorded, Lent is saved independently and does not create a personal play entry.
+
+Padel sessions have no tennis-specific intensity, Feel, Look, notes, or photos. The Lent section is available for either sport.
 
 ### Body / arm check-ins
 
@@ -88,7 +92,7 @@ Settings provides racket setup, schema and last-backup information, JSON export 
 
 ## 5. Notes, jobs, and history
 
-String and overgrip jobs retain their own setup information and dates. Entries store the job IDs to which play time is credited, so later setup changes do not rewrite old attribution. Racket totals and setup totals are calculated from entry hours.
+String and overgrip jobs retain their own setup information and dates. Entries store the job IDs to which play time is credited, so later setup changes do not rewrite old attribution. Racket and setup equipment totals include lent-use time, attributed from the linked session, as well as the owner's own entry hours. Personal session counts and play totals exclude lending.
 
 New entries no longer collect note categories such as General or Strings. Existing category values are retained for compatibility but are not part of the current note UI.
 
