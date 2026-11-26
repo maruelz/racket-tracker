@@ -6,7 +6,7 @@ js=js.replace(/\(async\(\)=>\{db=migrate[\s\S]*\}\)\(\);\s*$/,''); // drop boot 
 const stub=new Proxy(function(){},{get:(t,k)=>k===Symbol.toPrimitive?()=>'':k==='length'?0:k==='then'?undefined:stub,set:()=>true,apply:()=>stub});
 const els=[];const doc={querySelector:()=>stub,querySelectorAll:q=>q==='[data-chart]'?els:[],addEventListener(){},createElement:()=>stub};
 const ctx={document:doc,indexedDB:{open:()=>stub},localStorage:{getItem:()=>null,setItem(){}},history:stub,addEventListener(){},navigator:{},console,setTimeout,clearTimeout,Date,Math,alert(){},confirm:()=>true};
-ctx.window=ctx;vm.createContext(ctx);vm.runInContext(js+';this.api={slideH,chipsH,sessF,jobF,sTxt,fatSeries,episodes,loadView,bodyF,fatF,workoutF,pick,norm,upgradeFatigueScale,fatigueEstimate,FN,buildIx,render,mainList,detail,bodyView,fitDisplay,fitProfile,cmpTxt,blockHours,stoppedDates,strAgeMeter,strTarget,rangeControls,timeLabel,wkBlock,racketOverview,thoughtView,thoughtItems,thoughtLinkLabel,thoughtLinksHtml,sessionGroups,sessionHistory,sessionCopyText,FIT,LOOK_FLAGS,VERDICTS,LEGACY_VERDICTS,today,get db(){return db},set db(v){db=v},set bt(v){bt=v},set tab(v){tab=v},CS,bindChartScrolls,today}',ctx);
+ctx.window=ctx;vm.createContext(ctx);vm.runInContext(js+';this.api={slideH,chipsH,sessF,jobF,sTxt,stringers,fatSeries,episodes,loadView,bodyF,fatF,workoutF,pick,norm,upgradeFatigueScale,fatigueEstimate,FN,buildIx,render,mainList,detail,bodyView,fitDisplay,fitProfile,cmpTxt,blockHours,stoppedDates,strAgeMeter,strTarget,rangeControls,timeLabel,wkBlock,racketOverview,thoughtView,thoughtItems,thoughtLinkLabel,thoughtLinksHtml,sessionGroups,sessionHistory,sessionCopyText,FIT,LOOK_FLAGS,VERDICTS,LEGACY_VERDICTS,today,get db(){return db},set db(v){db=v},set bt(v){bt=v},set tab(v){tab=v},CS,bindChartScrolls,today}',ctx);
 const A=ctx.api;
 {
  A.db={rackets:[{id:'r',name:'Pure',sport:'tennis'},{id:'r2',name:'Aero',sport:'tennis'}],
@@ -50,14 +50,16 @@ const A=ctx.api;
  const realForm=ctx.form;
  let fields,save;
  ctx.form=(title,fs,ok)=>{fields=fs;save=ok};
- A.db={rackets:[{id:'r',name:'Pure',sport:'tennis',model:'Pure'}],stringJobs:[{id:'old',racketId:'r',startDate:'2026-10-01',mains:{model:'a',tensionKg:24},crosses:{model:'a',tensionKg:24},knots:2,stringer:'Alex'}],overgripJobs:[],entries:[],workouts:[],sessionMetrics:[],settings:{}};
+ A.db={rackets:[{id:'r',name:'Pure',sport:'tennis',model:'Pure'}],stringJobs:[{id:'old',racketId:'r',startDate:'2026-10-01',mains:{model:'a',tensionKg:24},crosses:{model:'a',tensionKg:24},knots:2,stringer:' Alex '},{id:'old2',racketId:'r',stringer:'Jamie'},{id:'old3',racketId:'r',stringer:'Alex'},{id:'old4',racketId:'r',stringer:'  '}],overgripJobs:[],entries:[],workouts:[],sessionMetrics:[],settings:{}};
+ assert.deepStrictEqual(Array.from(A.stringers()),['Alex','Jamie'],'stringer suggestions use trimmed, unique saved names');
  A.jobF('s','new','r');
  const stringer=fields.find(f=>f.k==='stringer');
  assert(stringer,'new strings form includes a Stringer field');
  assert.strictEqual(stringer.l,'Stringer');
+ assert.strictEqual(stringer.suggest,'stringer','stringer suggestions use the in-app picker instead of native datalist');
  assert.strictEqual(save({mm:'b',mt:25,cm:'b',ct:25,same:true,kn:2,nm:'',stringer:'  Jamie  ',sd:'2026-11-24',tm:'',nt:'',target:0,ageWeeks:6}),undefined);
- assert.strictEqual(A.db.stringJobs[1].stringer,'Jamie','stringer is trimmed and saved');
- assert(A.sTxt(A.db.stringJobs[1]).includes('Stringer: Jamie'),'stringer is shown in setup history');
+ assert.strictEqual(A.db.stringJobs[4].stringer,'Jamie','stringer is trimmed and saved');
+ assert(A.sTxt(A.db.stringJobs[4]).includes('Stringer: Jamie'),'stringer is shown in setup history');
  ctx.form=realForm;
 }
 {
